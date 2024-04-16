@@ -30,6 +30,12 @@ pipeline {
                 checkoutGit('https://github.com/itachi-utcha/Zomato-Clone.git', 'main')
             }
         }
+        stage('SonarQube Analysis'){
+            when {
+                expression { params.action == 'create' }}
+            steps{
+                sonarqubeAnalysis()
+            }
     }
     post {
     always {
