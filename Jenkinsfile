@@ -8,6 +8,37 @@ def COLOR_MAP = [
 pipeline {
     agent any
     parameters {
-        string(name: 'BRANCH', defaultValue: 'master', description: 'Branch to build')
+        choice(name: 'action', choices: 'create\ndelete', description: 'Select to create and destroy')
+        string(name: 'DOCKER_HUB_USERNAME', defaultValue: 'claw4321', description: 'Docker Hub Username')
+        string(name: 'IMAGE_NAME', defaultValue: 'zomato', description: 'Docker Image Name')
     }
+    tools {
+        jdk 'jdk17'
+        nodejs 'node20'
+    }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
+    }
+    stages{
+        stage('clean workspace'){
+            steps{
+                cleanWorkspace()
+            }
+        }
+        stage('checkout from Git'){
+            steps{
+                checkoutGit('https://github.com/itachi-utcha/Zomato-Clone.git', 'main')
+            }
+        }
+    }
+    post {
+    always {
+        echo 'Slack Notifications'
+        slackSend (
+            channel: 'jenkins12',
+            color: COLOR_MAP[currentBuild.currentResult],
+            message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} \n build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
+        )
+    }
+}
 }
