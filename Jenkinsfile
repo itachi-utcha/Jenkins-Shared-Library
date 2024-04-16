@@ -36,7 +36,22 @@ pipeline {
             steps{
                 sonarqubeAnalysis()
             }
-    }
+        }
+        stage('sonarqube QualitGate'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                script{
+                    def credentialsId = 'sonar-text'
+                    qualityGate(credentialsId)
+                }
+            }
+        }
+        stage('Npm'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                npmInstall()
+            }
+        }
 //     post {
 //     always {
 //         echo 'Slack Notifications'
